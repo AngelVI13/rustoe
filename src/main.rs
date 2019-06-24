@@ -65,6 +65,8 @@ impl Board {
 
 
 fn main() {
+    // tttoe example here:
+    // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     let mut b = Board::new();
 
     let moves = b.get_moves();
