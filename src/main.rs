@@ -1,18 +1,31 @@
 const ROWS: usize = 3;
 const BOARD_SIZE: usize = ROWS*ROWS;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum Mark {
     X = 1,
     O = -1,
     NoPlayer = 0,
 }
 
+// #[derive(Debug, Copy, Clone)]
+// enum Result {
+//     LOSS(f32),
+//     DRAW(f32),
+//     WIN(f32),
+// }
+
+// Game result scores
+const LOSS: f32 = 0.0;
+const DRAW: f32 = 0.5;
+const WIN: f32 = 1.0;
+
+
 #[derive(Debug)]
 struct Board {
     pos: [Mark; BOARD_SIZE],
     player_just_moved: Mark,
-    // fixed size array (instead of Vec) and a counter to keep 
+    // fixed size array (instead of Vec) and a counter to keep
     // track of the move number will be more performant
     history: Vec<usize>,
 }
@@ -28,6 +41,9 @@ impl Board {
     }
 
     fn make_move(&mut self, move_int: usize) {
+        // todo: if self.pos[move_int] != NoPlayer => panic/raise Error
+        // todo: if move_int not in range -> panic/raise Error
+
         self.player_just_moved = match self.player_just_moved {
             Mark::X => Mark::O,
             Mark::O => Mark::X,
@@ -57,9 +73,42 @@ impl Board {
             match value {
                 Mark::NoPlayer => possible_moves.push(idx),
                 _ => continue,
-            }    
+            }
         }
         return possible_moves;
+    }
+
+    fn get_result(&self, player_jm: Mark) -> Option<f32> {
+        for idx in 0..ROWS {
+            // Checks result column-wise i.e. 0-3-6/1-4-7/2-5-8 indexes
+            if self.pos[idx] == self.pos[idx + ROWS] && self.pos[idx] == self.pos[idx + 2*ROWS] && self.pos[idx] != Mark::NoPlayer {
+                return if self.pos[idx] == player_jm { Some(WIN) } else { Some(LOSS) };
+            }
+
+            let idx = idx * ROWS;
+
+            // Checks result row-wise i.e. 0-1-2/3-4-5/6-7-8
+            if self.pos[idx] == self.pos[idx + 1] && self.pos[idx] == self.pos[idx + 2] && self.pos[idx] != Mark::NoPlayer {
+                return if self.pos[idx] == player_jm { Some(WIN) } else { Some(LOSS) };
+            }
+        }
+
+        // Check result for left diagonal i.e. 0-4-8
+        if self.pos[0] == self.pos[ROWS + 1] && self.pos[0] == self.pos[2*ROWS + 2] && self.pos[0] != Mark::NoPlayer {
+            return if self.pos[0] == player_jm { Some(WIN) } else { Some(LOSS) };
+        }
+
+        // Check result for left diagonal i.e. 2-4-6
+        if self.pos[ROWS - 1] == self.pos[2*ROWS - 2] && self.pos[ROWS - 1] == self.pos[2*ROWS] && self.pos[ROWS - 1] != Mark::NoPlayer {
+            return if self.pos[ROWS - 1] == player_jm { Some(WIN) } else { Some(LOSS) };
+        }
+
+        // If no result and no moves left => DRAW
+        if self.get_moves().len() == 0 {
+            return Some(DRAW);
+        }
+
+        return None;
     }
 }
 
@@ -73,11 +122,21 @@ fn main() {
     println!("{:?}", moves);
     println!("{:?}", b);
     b.take_move();
-    b.make_move(4);
     b.make_move(0);
+    b.make_move(4);
+    b.make_move(8);
+    b.make_move(1);
+    b.make_move(7);
+    b.make_move(6);
+    b.make_move(2);
+    b.make_move(5);
+    b.make_move(3);
+
+    let result = b.get_result(Mark::X);
+    println!("{:?}", result);
     let moves = b.get_moves();
     println!("{:?}", moves);
- 
+
     println!("{:?}", b);
     b.take_move();
     println!("{:?}", b);
