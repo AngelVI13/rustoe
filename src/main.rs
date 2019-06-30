@@ -1,3 +1,5 @@
+use std::fmt;
+
 const ROWS: usize = 3;
 const BOARD_SIZE: usize = ROWS*ROWS;
 
@@ -30,6 +32,13 @@ struct Board {
     history: Vec<usize>,
 }
 
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Board(pos={:?}, player_just_moved={:?}, history={:?})", 
+        self.pos, self.player_just_moved, self.history)
+    }
+}
+
 impl Board {
     fn new() -> Board {
         // Returns a new board initialized to "0"/default values
@@ -55,11 +64,31 @@ impl Board {
         self.history.push(move_int);
     }
 
+    // Used for parsing user input move
+    fn make_move_safe(&mut self, move_int: usize) -> Result<(), String> {
+        if !self.get_moves().contains(&move_int) {
+            return Err(format!("Invalid move value: {}", move_int));
+        }
+
+        self.player_just_moved = match self.player_just_moved {
+            Mark::X => Mark::O,
+            Mark::O => Mark::X,
+            // for all other cases set to NoPlayer (should not happen)
+            _ => Mark::NoPlayer,
+        };
+
+        self.pos[move_int] = self.player_just_moved;
+        self.history.push(move_int);
+
+        Ok(())  // return empty result if everything went okay
+    }
+
     fn take_move(&mut self) {
         if let Some(move_int) = self.history.pop() {
             self.pos[move_int] = Mark::NoPlayer;
         } else {
             println!("History is empty");
+            // todo panic instead of print in order to catch logic errors
         }
     }
 
@@ -121,16 +150,19 @@ fn main() {
     let moves = b.get_moves();
     println!("{:?}", moves);
     println!("{:?}", b);
+    println!("{}", b);
     b.take_move();
     b.make_move(0);
-    b.make_move(4);
-    b.make_move(8);
-    b.make_move(1);
-    b.make_move(7);
-    b.make_move(6);
-    b.make_move(2);
-    b.make_move(5);
-    b.make_move(3);
+    // b.make_move(4);
+    // b.make_move(8);
+    // b.make_move(1);
+    // b.make_move(7);
+    // b.make_move(6);
+    // b.make_move(2);
+    // b.make_move(5);
+    // b.make_move(3);
+
+    let _result = b.make_move_safe(4).unwrap();
 
     let result = b.get_result(Mark::X);
     println!("{:?}", result);
