@@ -10,13 +10,6 @@ enum Mark {
     NoPlayer = 0,
 }
 
-// #[derive(Debug, Copy, Clone)]
-// enum Result {
-//     LOSS(f32),
-//     DRAW(f32),
-//     WIN(f32),
-// }
-
 // Game result scores
 const LOSS: f32 = 0.0;
 const DRAW: f32 = 0.5;
@@ -34,7 +27,7 @@ struct Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Board(pos={:?}, player_just_moved={:?}, history={:?})", 
+        write!(f, "Board(pos={:?}, player_just_moved={:?}, history={:?})",
         self.pos, self.player_just_moved, self.history)
     }
 }
@@ -49,10 +42,8 @@ impl Board {
         }
     }
 
+    // only used for valid/verified input, any other input goes through make_move_safe
     fn make_move(&mut self, move_int: usize) {
-        // todo: if self.pos[move_int] != NoPlayer => panic/raise Error
-        // todo: if move_int not in range -> panic/raise Error
-
         self.player_just_moved = match self.player_just_moved {
             Mark::X => Mark::O,
             Mark::O => Mark::X,
@@ -172,4 +163,20 @@ fn main() {
     println!("{:?}", b);
     b.take_move();
     println!("{:?}", b);
+
+    let mut col_arr: Vec<Vec<usize>> = vec![vec![0; ROWS]; ROWS];
+
+    get_column_array(&mut col_arr);
+
+    // how to do zip(col_array) to go from 0-3-6|1-4-7|2-5-8 -> 0-1-2|3-4-5|6-7-8
+    // for arbitrary sub vectors into multi dimensional vector
+    println!("{:?}", col_arr);
+}
+
+
+fn get_column_array(v: &mut Vec<Vec<usize>>) {
+    for i in 0..ROWS {
+        let v_temp = (i..BOARD_SIZE).step_by(ROWS).collect::<Vec<usize>>();
+        v[i] = v_temp;
+    }
 }
