@@ -1,11 +1,15 @@
 mod board;
 mod defines;
+mod uct;
 // pub use board::board;
 use board::Board;
 use defines::Mark;
+use uct::Node;
 
 
 fn main() {
+    // Add generic trait implementation required to use the UCT algorithm 
+
     // tttoe example here:
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     let mut b = Board::new();
@@ -35,4 +39,6 @@ fn main() {
 
     b.take_move();
     println!("{:?}", b);
+
+    let node = Node::new(&b);
 }

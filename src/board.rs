@@ -5,7 +5,7 @@ use std::fmt;
 #[derive(Debug)]
 pub struct Board {
     pos: [Mark; BOARD_SIZE],
-    player_just_moved: Mark,
+    pub player_just_moved: Mark,
     // fixed size array (instead of Vec) and a counter to keep
     // track of the move number will be more performant
     history: Vec<usize>,
