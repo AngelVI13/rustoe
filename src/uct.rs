@@ -2,26 +2,26 @@ use crate::defines::*;
 use crate::board::Board;
 
 
-pub struct Node {
+pub struct Node<'a> {
     move_: Option<usize>,
-    parentNode: Option<&Board>,
-    childNodes: Vec<&Board>,
+    parent_node: Option<&'a Board>,
+    child_nodes: Vec<&'a Board>,
     wins: i32,
     visits: i32,
-    untriedMoves: Vec<usize>,
-    playerJustMoved: Mark,
+    untried_moves: Vec<usize>,
+    player_just_moved: Mark,
 }
 
-impl Node {
+impl<'a> Node<'a> {
     pub fn new(state: &Board) -> Node {
         Node {
             move_: None,
-            parentNode: None,
-            childNodes: Vec::new(),
+            parent_node: None,
+            child_nodes: Vec::new(),
             wins: 0,
             visits: 0,
-            untriedMoves: state.get_moves(),
-            playerJustMoved: state.player_just_moved,
+            untried_moves: state.get_moves(),
+            player_just_moved: state.player_just_moved,
         }
     }
 }
