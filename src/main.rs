@@ -8,7 +8,7 @@ use uct::Node;
 
 
 fn main() {
-    // Add generic trait implementation required to use the UCT algorithm 
+    // Add generic trait implementation required to use the UCT algorithm
 
     // tttoe example here:
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
@@ -40,5 +40,5 @@ fn main() {
     b.take_move();
     println!("{:?}", b);
 
-    let node = Node::new(&b);
+    let node = Node::new_root(&b);
 }
