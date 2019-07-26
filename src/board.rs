@@ -51,16 +51,17 @@ impl Board {
             result_lines: get_result_lines(),
         }
     }
+    pub fn update_player_jm(&self, player_jm: Mark) -> Mark {
+        match player_jm {
+            Mark::X => Mark::O,
+            Mark::O => Mark::X,
+            _ => Mark::NoPlayer,
+        }
+    }
 
     // only used for valid/verified input, any other input goes through make_move_safe
     pub fn make_move(&mut self, move_int: usize) {
-        self.player_just_moved = match self.player_just_moved {
-            Mark::X => Mark::O,
-            Mark::O => Mark::X,
-            // for all other cases set to NoPlayer (should not happen)
-            _ => Mark::NoPlayer,
-        };
-
+        self.player_just_moved = self.update_player_jm(self.player_just_moved);
         self.pos[move_int] = self.player_just_moved;
         self.history.push(move_int);
     }
@@ -79,6 +80,7 @@ impl Board {
     pub fn take_move(&mut self) {
         if let Some(move_int) = self.history.pop() {
             self.pos[move_int] = Mark::NoPlayer;
+            self.player_just_moved = self.update_player_jm(self.player_just_moved);
         } else {
             println!("History is empty");
             // todo panic instead of print in order to catch logic errors
@@ -86,23 +88,16 @@ impl Board {
     }
 
     pub fn get_moves(&self) -> Vec<usize> {
-        // Implementation might be faster if Board is initialized with
-        // fixed size array and values are removed/added on every
-        // make/take_move
-        let mut possible_moves: Vec<usize> = Vec::new();
-
-        for (idx, value) in self.pos.iter().enumerate() {
-            match value {
-                Mark::NoPlayer => possible_moves.push(idx),
-                _ => continue,
-            }
+        if let Some(_) = self.get_result(self.player_just_moved) {
+            Vec::new() // return empty vector
+        } else {
+            // Return a vector of all indices of pos which are equal to NoPlayer
+            (0..BOARD_SIZE).filter(|x| self.pos[*x] == Mark::NoPlayer).collect::<Vec<usize>>()
         }
-        return possible_moves;
     }
 
     fn evaluate_lines(&self, lines: &Vec<Vec<usize>>, player_jm: &Mark) -> Option<f32> {
         for line in lines.iter() {
-            // let mut result: Vec<Mark> = Vec::new();
             let result = line.iter().map(|x| self.pos[*x] as i8).collect::<Vec<i8>>();
             // the first element of result vec would also be the winner mark if line has result
             let potential_winner = result[0];
@@ -124,7 +119,7 @@ impl Board {
         }
 
         // If no result and no moves left => DRAW
-        if self.get_moves().len() == 0 {
+        if self.pos.iter().fold(0, |acc, x| acc + (*x as i8).abs()) == BOARD_SIZE as i8 {
             return Some(DRAW);
         }
 

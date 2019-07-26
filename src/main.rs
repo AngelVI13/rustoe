@@ -3,8 +3,9 @@ mod defines;
 mod uct;
 // pub use board::board;
 use board::Board;
-use defines::Mark;
-use uct::Node;
+use defines::{LOSS, WIN, DRAW};
+use std::io;
+// use uct::Node;
 
 
 fn main() {
@@ -14,31 +15,21 @@ fn main() {
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     let mut b = Board::new();
 
-    let moves = b.get_moves();
-    println!("{:?}", moves);
-    println!("{:?}", b);
+    while let None = b.get_result(b.player_just_moved) {
+        let moves = b.get_moves();
+        println!("{}", b);
+        println!("Enter move (available: {:?})", moves);
+        let mut input_move = String::new();
+        io::stdin().read_line(&mut input_move).expect("Failed to read line");
+        let move_: u8 = input_move.trim().parse().expect("Please type a positive number!");
+        b.make_move_safe(move_ as usize).unwrap();
+    }
+
     println!("{}", b);
-    b.take_move();
-    b.make_move(0);
-    b.make_move(4);
-    b.make_move(8);
-    b.make_move(1);
-    b.make_move(7);
-    b.make_move(2);
-    b.make_move(6);
-    // b.make_move(5);
-    // b.make_move(3);
-
-    // let _result = b.make_move_safe(4).unwrap();
-
-    println!("{:?}", b);
-    let result = b.get_result(Mark::X);
-    println!("{:?}", result);
-    let moves = b.get_moves();
-    println!("{:?}", moves);
-
-    b.take_move();
-    println!("{:?}", b);
-
-    let node = Node::new_root(&b);
+    if let Some(winner) = b.get_result(b.player_just_moved) {
+        if winner == DRAW { println!("Draw") }
+        if winner == WIN { println!("Winner is {:?}", b.player_just_moved) }
+        if winner == LOSS { println!("Winner is {:?}", b.update_player_jm(b.player_just_moved)) }
+    }
+    // let node = Node::new_root(&b);
 }
