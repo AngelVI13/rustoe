@@ -17,8 +17,8 @@ fn main() {
 
     let mut arena = Arena::new();
 
-    let node1 = arena.new_node(NodeData::new());
-    let node2 = arena.new_node(NodeData::new());
+    let node1 = arena.new_node(NodeData::default());
+    let node2 = arena.new_node(NodeData::default());
 
     arena.add_child(node1, node2);
 

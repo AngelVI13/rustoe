@@ -16,7 +16,7 @@ pub struct NodeData {
 }
 
 impl NodeData {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Self { 
             move_: None, 
             wins: 0, 
@@ -25,11 +25,22 @@ impl NodeData {
             player_just_moved: Mark::O
         }
     }
+
+    pub fn new(move_: Option<usize>, state: &Board) -> Self {
+        Self {
+            move_: move_,
+            wins: 0,
+            visits: 0,
+            untried_moves: state.get_moves(),
+            player_just_moved: state.player_just_moved,
+        }
+    }
 }
 
 #[derive(Debug)]
 pub struct Node {
-    parent: Option<NodeId>,
+    id: NodeId,
+    parent: Option<NodeId>,    
     children: Vec<Option<NodeId>>,
     data: NodeData,
 }
@@ -47,16 +58,18 @@ impl Arena {
     pub fn new_node(&mut self, data: NodeData) -> NodeId {
         // Get the next index in the nodes
         let next_index = self.nodes.len();
+        let new_node_id = NodeId { index: next_index };
 
         // Push the new node into the arena
         self.nodes.push(Node {
+            id: new_node_id,
             parent: None,
             children: Vec::new(),
             data: data,
         });
 
         // Return the node identifier
-        NodeId { index: next_index }
+        new_node_id
     }
 
     pub fn add_child(&mut self, parent_id: NodeId, child_id: NodeId) {
@@ -74,44 +87,34 @@ impl Arena {
     }
 }
 
-// impl<'a> Node<'a> {
-//     pub fn new_root(state: &Board) -> Node {  // return reference ?
-//         Node {
-//             move_: None,
-//             parent_node: None,
-//             child_nodes: Vec::new(),
-//             wins: 0,
-//             visits: 0,
-//             untried_moves: state.get_moves(),
-//             player_just_moved: state.player_just_moved,
-//         }
-//     }
+impl Node {
+    pub fn new_root(state: &Board, arena: &mut Arena) -> NodeId {
+        let origin_move = None;
+        let node_data = NodeData::new(origin_move, state);
+        arena.new_node(node_data)
+    }
 
-//     pub fn new_child(move_: usize, parent: &'a Node, state: &'a Board) -> Node<'a> {
-//         Node {
-//             move_: Some(move_),
-//             parent_node: Some(parent),
-//             child_nodes: Vec::new(),
-//             wins: 0,
-//             visits: 0,
-//             untried_moves: state.get_moves(),
-//             player_just_moved: state.player_just_moved,
-//         }
-//     }
+    fn new_child(&self, arena: &mut Arena, move_: usize, state: &Board) -> NodeId {
+        // Create a new node in arena using NodeData from provided state and move values
+        // Then add the parent <-> child information to the corresponding Nodes inside arena
+        // NOTE: this function should only be called from add_child() 
+        let new_child_id = arena.new_node(NodeData::new(Some(move_), state));
+        arena.add_child(self.id, new_child_id);
+        new_child_id
+    }
 
-//     pub fn update(&mut self, result: i32) {
-//         self.visits += 1;
-//         self.wins += result;
-//     }
+    pub fn update(&mut self, result: i32) {
+        self.data.visits += 1;
+        self.data.wins += result;
+    }
 
-//     pub fn add_child(&mut self, move_: usize, state: &'a Board) -> &Node {
-//         let node = Self::new_child(move_, self, state);
+    pub fn add_child(&mut self, arena: &mut Arena, move_: usize, state: &Board) -> NodeId {
+        let node_id = self.new_child(arena, move_, state);
 
-//         // Below does the same as : self.untried_moves.remove_item(&move_).unwrap();
-//         let index = self.untried_moves.iter().position(|x| *x == move_).unwrap();
-//         self.untried_moves.remove(index);
+        // Below does the same as : self.untried_moves.remove_item(&move_).unwrap();
+        let index = self.data.untried_moves.iter().position(|x| *x == move_).unwrap();
+        self.data.untried_moves.remove(index);
 
-//         self.child_nodes.push(&node);
-//         &node
-//     }
-// }
+        node_id
+    }
+}
