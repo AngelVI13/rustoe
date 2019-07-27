@@ -5,7 +5,7 @@ mod uct;
 use board::Board;
 use defines::{LOSS, WIN, DRAW};
 use std::io;
-// use uct::Node;
+use uct::{Arena, NodeData};
 
 
 fn main() {
@@ -13,6 +13,19 @@ fn main() {
 
     // tttoe example here:
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
+    // let node = Node::new_root(&b);
+
+    let mut arena = Arena::new();
+
+    let node1 = arena.new_node(NodeData::new());
+    let node2 = arena.new_node(NodeData::new());
+
+    arena.add_child(node1, node2);
+
+    println!("{:?}", arena);
+}
+
+fn play_user_game() {
     let mut b = Board::new();
 
     while let None = b.get_result(b.player_just_moved) {
@@ -31,5 +44,4 @@ fn main() {
         if winner == WIN { println!("Winner is {:?}", b.player_just_moved) }
         if winner == LOSS { println!("Winner is {:?}", b.update_player_jm(b.player_just_moved)) }
     }
-    // let node = Node::new_root(&b);
 }

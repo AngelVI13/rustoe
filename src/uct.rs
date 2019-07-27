@@ -1,16 +1,78 @@
-// use crate::defines::*;
-// use crate::board::Board;
+use crate::defines::*;
+use crate::board::Board;
 
+#[derive(Debug, Copy, Clone)]
+pub struct NodeId {
+    index: usize,
+}
 
-// pub struct Node<'a> {
-//     move_: Option<usize>,
-//     parent_node: Option<&'a Self>,
-//     child_nodes: Vec<&'a Self>,
-//     wins: i32,
-//     visits: i32,
-//     untried_moves: Vec<usize>,
-//     player_just_moved: Mark,
-// }
+#[derive(Debug)]
+pub struct NodeData {
+    move_: Option<usize>,
+    wins: i32,
+    visits: i32,
+    untried_moves: Vec<usize>,
+    player_just_moved: Mark,
+}
+
+impl NodeData {
+    pub fn new() -> Self {
+        Self { 
+            move_: None, 
+            wins: 0, 
+            visits: 0, 
+            untried_moves: Vec::new(), 
+            player_just_moved: Mark::O
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Node {
+    parent: Option<NodeId>,
+    children: Vec<Option<NodeId>>,
+    data: NodeData,
+}
+
+#[derive(Debug)]
+pub struct Arena {
+    nodes: Vec<Node>,
+}
+
+impl Arena {
+    pub fn new() -> Self {
+        Self { nodes: Vec::new() }
+    }
+
+    pub fn new_node(&mut self, data: NodeData) -> NodeId {
+        // Get the next index in the nodes
+        let next_index = self.nodes.len();
+
+        // Push the new node into the arena
+        self.nodes.push(Node {
+            parent: None,
+            children: Vec::new(),
+            data: data,
+        });
+
+        // Return the node identifier
+        NodeId { index: next_index }
+    }
+
+    pub fn add_child(&mut self, parent_id: NodeId, child_id: NodeId) {
+        if let Some(parent) = self.nodes.get_mut(parent_id.index) {
+            parent.children.push(Some(child_id));
+
+            if let Some(child) = self.nodes.get_mut(child_id.index) {
+                child.parent = Some(parent_id);
+            } else {
+                panic!("Couldn't find child!")
+            }
+        } else {
+            panic!("Couldn't find parent!")
+        }
+    }
+}
 
 // impl<'a> Node<'a> {
 //     pub fn new_root(state: &Board) -> Node {  // return reference ?
