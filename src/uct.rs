@@ -1,3 +1,5 @@
+use std::f32;
+
 use crate::defines::*;
 use crate::board::Board;
 
@@ -41,7 +43,7 @@ impl NodeData {
 pub struct Node {
     id: NodeId,
     parent: Option<NodeId>,    
-    children: Vec<Option<NodeId>>,
+    children: Vec<NodeId>,
     data: NodeData,
 }
 
@@ -74,7 +76,7 @@ impl Arena {
 
     pub fn add_child(&mut self, parent_id: NodeId, child_id: NodeId) {
         if let Some(parent) = self.nodes.get_mut(parent_id.index) {
-            parent.children.push(Some(child_id));
+            parent.children.push(child_id);
 
             if let Some(child) = self.nodes.get_mut(child_id.index) {
                 child.parent = Some(parent_id);
@@ -116,5 +118,34 @@ impl Node {
         self.data.untried_moves.remove(index);
 
         node_id
+    }
+
+    fn ucb1(&self, node: &Node) -> f32 {
+        // Implements UCB -> upper confidence boundary that helps select the most 
+        // promising childe nodes
+        // Vi + sqrt( ln(N) / Ni ), where Vi is the estimated value of the node
+        // Ni is the number of times the node has been visited,
+        // N is the total number of times its parent has been visited
+        (node.data.wins / node.data.visits) as f32 + 
+        (2.0 * (self.data.visits as f32).ln() / node.data.visits as f32).sqrt()
+    }
+
+    pub fn select_child(&self, arena: &Arena) -> NodeId {
+        if self.children.len() == 0 {
+            panic!("No children to select from")
+        }
+
+        let mut best_child_id = self.children[0];
+        let mut best_child_ucb = self.ucb1(&arena.nodes[best_child_id.index]);
+
+        for child in self.children.iter() {
+            let child_ucb = self.ucb1(&arena.nodes[child.index]);
+            if child_ucb > best_child_ucb {
+                best_child_ucb = child_ucb;
+                best_child_id = *child;
+            }
+        }
+
+        best_child_id
     }
 }
