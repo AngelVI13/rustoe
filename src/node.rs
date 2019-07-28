@@ -5,24 +5,24 @@ use crate::board::Board;
 
 #[derive(Debug, Copy, Clone)]
 pub struct NodeId {
-    index: usize,
+    pub index: usize,
 }
 
 #[derive(Debug)]
 pub struct NodeData {
-    move_: Option<usize>,
-    wins: i32,
-    visits: i32,
-    untried_moves: Vec<usize>,
-    player_just_moved: Mark,
+    pub move_: Option<usize>,
+    pub wins: f32,
+    pub visits: f32,
+    pub untried_moves: Vec<usize>,
+    pub player_just_moved: Mark,
 }
 
 impl NodeData {
     pub fn default() -> Self {
         Self { 
             move_: None, 
-            wins: 0, 
-            visits: 0, 
+            wins: 0.0, 
+            visits: 0.0, 
             untried_moves: Vec::new(), 
             player_just_moved: Mark::O
         }
@@ -31,8 +31,8 @@ impl NodeData {
     pub fn new(move_: Option<usize>, state: &Board) -> Self {
         Self {
             move_: move_,
-            wins: 0,
-            visits: 0,
+            wins: 0.0,
+            visits: 0.0,
             untried_moves: state.get_moves(),
             player_just_moved: state.player_just_moved,
         }
@@ -42,17 +42,17 @@ impl NodeData {
 #[derive(Debug)]
 pub struct Node {
     id: NodeId,
-    parent: Option<NodeId>,    
-    children: Vec<NodeId>,
-    data: NodeData,
+    pub parent: Option<NodeId>,    
+    pub children: Vec<NodeId>,
+    pub data: NodeData,
 }
 
 #[derive(Debug)]
 pub struct Arena {
-    nodes: Vec<Node>,
+    pub nodes: Vec<Node>,
 }
 
-impl Arena {
+impl Arena { // todo: consider adding .get() implementation that return mut ref to Node
     pub fn new() -> Self {
         Self { nodes: Vec::new() }
     }
@@ -87,6 +87,10 @@ impl Arena {
             panic!("Couldn't find parent!")
         }
     }
+
+    pub fn get(&mut self, node_id: &NodeId) -> &mut Node {
+        &mut self.nodes[node_id.index]
+    }
 }
 
 impl Node {
@@ -105,8 +109,8 @@ impl Node {
         new_child_id
     }
 
-    pub fn update(&mut self, result: i32) {
-        self.data.visits += 1;
+    pub fn update(&mut self, result: f32) {
+        self.data.visits += 1.0;
         self.data.wins += result;
     }
 
@@ -126,7 +130,7 @@ impl Node {
         // Vi + sqrt( ln(N) / Ni ), where Vi is the estimated value of the node
         // Ni is the number of times the node has been visited,
         // N is the total number of times its parent has been visited
-        (node.data.wins / node.data.visits) as f32 + 
+        (node.data.wins / node.data.visits) + 
         (2.0 * (self.data.visits as f32).ln() / node.data.visits as f32).sqrt()
     }
 

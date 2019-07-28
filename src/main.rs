@@ -1,12 +1,12 @@
 mod board;
 mod defines;
+mod node;
 mod uct;
-// pub use board::board;
 use board::Board;
 use defines::{LOSS, WIN, DRAW};
 use std::io;
-use uct::{Arena, NodeData};
-
+use node::{Arena, NodeData};
+use uct::uct;
 
 fn main() {
     // Add generic trait implementation required to use the UCT algorithm
@@ -17,12 +17,12 @@ fn main() {
 
     let mut arena = Arena::new();
 
-    let node1 = arena.new_node(NodeData::default());
-    let node2 = arena.new_node(NodeData::default());
+    // let node1 = arena.new_node(NodeData::default());
+    // let node2 = arena.new_node(NodeData::default());
 
-    arena.add_child(node1, node2);
+    // arena.add_child(node1, node2);
 
-    println!("{:?}", arena);
+    // println!("{:?}", arena);
 }
 
 fn play_user_game() {
