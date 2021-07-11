@@ -48,9 +48,6 @@ impl Node {
         (child_node.wins / child_node.visits) + 
         (2.0 * (self.visits as f32).ln() / child_node.visits as f32).sqrt()
     }
-
-    // TODO: add logic for adding root, child & selecting child to explore. Probably should be
-    // handled in the arena impl instead of the node itself
 }
 
 #[derive(Debug, Default)]
@@ -59,15 +56,21 @@ pub struct Tree {
 }
 
 impl Tree {
-    pub fn new() -> Self {
-        Tree::default()
+    pub fn root(state: &Board) -> Tree {
+        tree_root = Tree::default();
+
+        let parent_index = None;
+        let origin_move = None;
+        tree_root.add(parent_index, origin_move, state);
+
+        tree_root
     }
 
     pub fn get(&self, node_id: usize) -> &Node {
         &self.arena[node_id]
     }
 
-    pub fn add(&mut self, parent: Option<usize>, move_: Option<usize>, state: &Board) -> usize {
+    pub fn add_child(&mut self, parent: Option<usize>, move_: Option<usize>, state: &Board) -> usize {
         let new_node_index = self.arena.len();
         let new_node = Node::new(new_node_index, parent, move_, state);
 
@@ -75,7 +78,15 @@ impl Tree {
 
         // register child to parent node (if parent index was provided)
         if let Some(parent_id) = parent {
-            self.arena[parent_id].children.push(new_node_index);
+            let parent_node = &self.arena[parent_id];
+            parent_node.children.push(new_node_index);
+
+            // If a selected move is provided -> remove it from the parent node's untried moves
+            if let Some(selected_move) = move_ {
+                // Below does the same as : self.untried_moves.remove_item(&move_).unwrap();
+                let index = parent_node.untried_moves.iter().position(|x| *x == move_).unwrap();
+                parent_node.untried_moves.remove(index);
+            }
         }
 
         new_node_index
