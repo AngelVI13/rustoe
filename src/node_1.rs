@@ -66,6 +66,11 @@ impl Tree {
         tree_root
     }
 
+    pub fn get_root_index(&self) -> usize {
+        // Root node index is always the first element in the arena -> 0
+        0
+    }
+
     pub fn get(&self, node_id: usize) -> &Node {
         &self.arena[node_id]
     }
