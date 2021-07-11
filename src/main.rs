@@ -1,11 +1,13 @@
 mod board;
 mod defines;
 mod node;
+mod node_1;
 mod uct;
 use board::Board;
 use defines::{LOSS, WIN, DRAW};
 use std::io;
-use node::{Arena, NodeData};
+// use node::{Arena, NodeData};
+use node_1::{Tree, Node};
 use uct::uct;
 
 fn main() {
@@ -14,15 +16,15 @@ fn main() {
     // tttoe example here:
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     // let node = Node::new_root(&b);
-
-    let mut arena = Arena::new();
+    let b = Board::new();
+    let mut tree = Tree::root(&b);
 
     // let node1 = arena.new_node(NodeData::default());
     // let node2 = arena.new_node(NodeData::default());
 
     // arena.add_child(node1, node2);
 
-    // println!("{:?}", arena);
+    println!("{:?}", tree);
 }
 
 fn play_user_game() {

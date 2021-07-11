@@ -57,11 +57,11 @@ pub struct Tree {
 
 impl Tree {
     pub fn root(state: &Board) -> Tree {
-        tree_root = Tree::default();
+        let mut tree_root = Tree::default();
 
         let parent_index = None;
         let origin_move = None;
-        tree_root.add(parent_index, origin_move, state);
+        tree_root.add_child(parent_index, origin_move, state);
 
         tree_root
     }
@@ -78,13 +78,13 @@ impl Tree {
 
         // register child to parent node (if parent index was provided)
         if let Some(parent_id) = parent {
-            let parent_node = &self.arena[parent_id];
+            let parent_node = &mut self.arena[parent_id];
             parent_node.children.push(new_node_index);
 
             // If a selected move is provided -> remove it from the parent node's untried moves
             if let Some(selected_move) = move_ {
                 // Below does the same as : self.untried_moves.remove_item(&move_).unwrap();
-                let index = parent_node.untried_moves.iter().position(|x| *x == move_).unwrap();
+                let index = parent_node.untried_moves.iter().position(|x| *x == selected_move).unwrap();
                 parent_node.untried_moves.remove(index);
             }
         }
@@ -94,18 +94,20 @@ impl Tree {
 
     
     pub fn select_child(&self, parent: Option<usize>) -> usize {
-        if Some(parent_index) = parent {
-            let parent_node = self.arena[parent_index]
+        let parent_node: &Node;
+
+        if let Some(parent_index) = parent {
+            parent_node = &self.arena[parent_index];
         } else {
-            let parent_node = self.arena[0]
+            parent_node = &self.arena[0];
         }
 
         if parent_node.children.len() == 0 {
-            panic!("No children to select from")
+            panic!("No children to select from");
         }
 
         let mut best_child_id = parent_node.children[0];
-        let mut best_child_ucb = parent_node.ucb1(self.arena[best_child_id]);
+        let mut best_child_ucb = parent_node.ucb1(&self.arena[best_child_id]);
 
         for child in parent_node.children.iter() {
             let child_ucb = parent_node.ucb1(&self.arena[*child]);
