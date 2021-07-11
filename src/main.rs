@@ -17,7 +17,7 @@ fn main() {
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     // let node = Node::new_root(&b);
     let b = Board::new();
-    let mut tree = Tree::root(&b);
+    let mut tree = Tree::new(&b);
 
     // let node1 = arena.new_node(NodeData::default());
     // let node2 = arena.new_node(NodeData::default());

@@ -3,8 +3,28 @@ use rand::seq::SliceRandom;
 use crate::defines::*;
 use crate::board::Board;
 // use crate::node::{Arena, Node, NodeId, NodeData};
+use crate::node_1::{Tree, Node};
 
+// TODO: why not pass rootstate by pointer?
 pub fn uct(rootstate: Board, itermax: i32) -> (f32, f32) {
+    let arena_tree = Tree::new(&rootstate);
+    let rootnode_id = 0; // TODO: why doesn't this work ???: arena_tree.get_root_index();
+
+    let mut state = rootstate;
+    for _i in 0..itermax {
+        let mut node_id = rootnode_id;
+        let mut moves_to_root = 0;
+        
+        // Select state
+        // node is fully expanded and non-terminal
+        // FIXME: get better access to Node info
+        while arena_tree.get(node_id).untried_moves.len() == 0 && arena_tree.get(node_id).children.len() > 0 {
+            node_id = arena_tree.select_child(Some(node_id));
+            state.make_move(arena_tree.get(node_id).move_.expect("Move missing!"));
+            moves_to_root += 1;
+        }
+    }
+
     (0.0, 0.0)
 }
 

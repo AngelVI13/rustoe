@@ -56,7 +56,7 @@ pub struct Tree {
 }
 
 impl Tree {
-    pub fn root(state: &Board) -> Tree {
+    pub fn new(state: &Board) -> Tree {
         let mut tree_root = Tree::default();
 
         let parent_index = None;
