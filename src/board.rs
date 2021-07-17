@@ -2,7 +2,8 @@
 use crate::defines::*;
 use std::fmt;
 
-#[derive(Debug)]
+// TODO: What's the difference between clone and copy ???
+#[derive(Debug, Clone)]
 pub struct Board {
     pos: [Mark; BOARD_SIZE],
     pub player_just_moved: Mark,

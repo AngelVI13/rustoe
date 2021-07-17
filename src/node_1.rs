@@ -75,6 +75,10 @@ impl Tree {
         &self.arena[node_id]
     }
 
+    pub fn get_mut(&mut self, node_id: usize) -> &mut Node {
+        &mut self.arena[node_id]
+    }
+
     pub fn add_child(&mut self, parent: Option<usize>, move_: Option<usize>, state: &Board) -> usize {
         let new_node_index = self.arena.len();
         let new_node = Node::new(new_node_index, parent, move_, state);

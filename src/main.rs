@@ -16,15 +16,16 @@ fn main() {
     // tttoe example here:
     // https://github.com/flofriday/tictactoe/blob/master/src/main.rs
     // let node = Node::new_root(&b);
-    let b = Board::new();
-    let mut tree = Tree::new(&b);
+    // let b = Board::new();
+    // let mut tree = Tree::new(&b);
 
+    play_user_game();
     // let node1 = arena.new_node(NodeData::default());
     // let node2 = arena.new_node(NodeData::default());
 
     // arena.add_child(node1, node2);
 
-    println!("{:?}", tree);
+    // println!("{:?}", tree);
 }
 
 fn play_user_game() {
@@ -37,6 +38,8 @@ fn play_user_game() {
         let mut input_move = String::new();
         io::stdin().read_line(&mut input_move).expect("Failed to read line");
         let move_: u8 = input_move.trim().parse().expect("Please type a positive number!");
+
+        uct(&b, 10000);
         b.make_move_safe(move_ as usize).unwrap();
     }
 
