@@ -45,6 +45,7 @@ impl Node {
         // Vi + sqrt( ln(N) / Ni ), where Vi is the estimated value of the node
         // Ni is the number of times the node has been visited,
         // N is the total number of times its parent has been visited
+        // println!("C_wins {} C_visits {} N_visits {} N {}", child_node.wins, child_node.visits, self.visits, self.index);
         (child_node.wins / child_node.visits) + 
         (2.0 * (self.visits as f32).ln() / child_node.visits as f32).sqrt()
     }
@@ -126,6 +127,7 @@ impl Tree {
             }
         }
 
+        // println!("Best child selected: {}: {}", best_child_id, best_child_ucb);
         best_child_id
     }
 }

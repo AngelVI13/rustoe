@@ -32,6 +32,8 @@ fn play_user_game() {
     let mut b = Board::new();
 
     while let None = b.get_result(b.player_just_moved) {
+        uct(&b, 10000);
+
         let moves = b.get_moves();
         println!("{}", b);
         println!("Enter move (available: {:?})", moves);
@@ -39,7 +41,6 @@ fn play_user_game() {
         io::stdin().read_line(&mut input_move).expect("Failed to read line");
         let move_: u8 = input_move.trim().parse().expect("Please type a positive number!");
 
-        uct(&b, 10000);
         b.make_move_safe(move_ as usize).unwrap();
     }
 

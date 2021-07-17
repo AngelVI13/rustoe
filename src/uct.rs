@@ -8,7 +8,8 @@ use crate::node_1::{Tree, Node};
 // TODO: why not pass rootstate by pointer?
 pub fn uct(rootstate: &Board, itermax: i32) -> (f32, f32) {
     let mut arena_tree = Tree::new(rootstate);
-    let rootnode_id = 0; // TODO: why doesn't this work ???: arena_tree.get_root_index();
+    // let rootnode_id = 0; // TODO: why doesn't this work ???: arena_tree.get_root_index();
+    let rootnode_id = arena_tree.get_root_index();
 
     let mut state = rootstate.clone();
     for _i in 0..itermax {
@@ -37,8 +38,8 @@ pub fn uct(rootstate: &Board, itermax: i32) -> (f32, f32) {
         // Rollout
         // While state is non-terminal
         while state.get_result(state.player_just_moved).is_none() {
-            // TODO: This is the same as above if-logic => replace with method `do_random_move`
-            let m = arena_tree.get(node_id).untried_moves.choose(&mut rand::thread_rng());
+            let moves = state.get_moves();
+            let m = moves.choose(&mut rand::thread_rng());
             let m = *m.expect("Move missing!"); // unpack move from Option
             state.make_move(m);
             moves_to_root += 1;
@@ -46,10 +47,16 @@ pub fn uct(rootstate: &Board, itermax: i32) -> (f32, f32) {
 
         // Backpropagate
         // Backpropagate from the expanded node and work back to the root node
-        while arena_tree.get(node_id).parent.is_some() {
+        loop {
             let game_result = state.get_result(arena_tree.get(node_id).player_just_moved).expect("No game result!");
+            // println!("Update node results: {}, res {}", node_id, game_result);
             arena_tree.get_mut(node_id).update(game_result);
-            node_id = arena_tree.get(node_id).parent.expect("No parent id!");
+
+            if let Some(parent_id) = arena_tree.get(node_id).parent {
+                node_id = parent_id;
+            } else {
+                break;
+            }
         }
         
         // Undo moves made during this iteration
