@@ -14,6 +14,7 @@ pub struct Node {
     pub move_: Option<usize>,
     pub wins: f32,
     pub visits: f32,
+    pub score: f32,
     pub untried_moves: Vec<usize>,
     pub player_just_moved: Mark,
 }
@@ -28,6 +29,7 @@ impl Node {
             move_: move_,
             wins: 0.0,
             visits: 0.0,
+            score: 0.0,
             untried_moves: state.get_moves(),
             player_just_moved: state.player_just_moved,
         }
@@ -36,6 +38,7 @@ impl Node {
     pub fn update(&mut self, result: f32) {
         self.visits += 1.0;
         self.wins += result;
+        self.score = self.wins / self.visits;
     }
 
     
@@ -45,8 +48,7 @@ impl Node {
         // Vi + sqrt( ln(N) / Ni ), where Vi is the estimated value of the node
         // Ni is the number of times the node has been visited,
         // N is the total number of times its parent has been visited
-        // println!("C_wins {} C_visits {} N_visits {} N {}", child_node.wins, child_node.visits, self.visits, self.index);
-        (child_node.wins / child_node.visits) + 
+        (child_node.score) + 
         (2.0 * (self.visits as f32).ln() / child_node.visits as f32).sqrt()
     }
 }

@@ -67,14 +67,13 @@ pub fn uct(rootstate: &Board, itermax: i32) -> usize {
     let rootnode = arena_tree.get(rootnode_id);
     let best_node = arena_tree.get(rootnode.children[0]);
     let mut best_move = best_node.move_.expect("No move!");
-    let mut best_move_score = best_node.wins / best_node.visits;
+    let mut best_move_score = best_node.score;
 
     for child_id in rootnode.children.iter() {
         let child = arena_tree.get(*child_id);
-        println!("Move {}, Score {}/{} -> {}", child.move_.expect("No move!"), child.wins, child.visits, child.wins/child.visits);
-        let child_score = child.wins / child.visits;
-        if best_move_score < child_score {
-            best_move_score = child_score;
+        println!("Move {}, Score {}/{} -> {}", child.move_.expect("No move!"), child.wins, child.visits, child.score);
+        if best_move_score < child.score {
+            best_move_score = child.score;
             best_move = child.move_.expect("No move!");
         }
     }
