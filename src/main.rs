@@ -32,7 +32,7 @@ fn play_user_game() {
     let mut b = Board::new();
 
     while let None = b.get_result(b.player_just_moved) {
-        uct(&b, 10000);
+        println!("{}", uct(&b, 10000));
 
         let moves = b.get_moves();
         println!("{}", b);

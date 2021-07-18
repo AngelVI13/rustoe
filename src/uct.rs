@@ -5,8 +5,7 @@ use crate::board::Board;
 // use crate::node::{Arena, Node, NodeId, NodeData};
 use crate::node_1::{Tree, Node};
 
-// TODO: why not pass rootstate by pointer?
-pub fn uct(rootstate: &Board, itermax: i32) -> (f32, f32) {
+pub fn uct(rootstate: &Board, itermax: i32) -> usize {
     let mut arena_tree = Tree::new(rootstate);
     // let rootnode_id = 0; // TODO: why doesn't this work ???: arena_tree.get_root_index();
     let rootnode_id = arena_tree.get_root_index();
@@ -65,12 +64,22 @@ pub fn uct(rootstate: &Board, itermax: i32) -> (f32, f32) {
         }
     }
 
-        let rootnode = arena_tree.get(rootnode_id);
-        for child_id in rootnode.children.iter() {
-            let child = arena_tree.get(*child_id);
-            println!("Move {}, Score {}/{} -> {}", child.move_.expect("No move!"), child.wins, child.visits, child.wins/child.visits);
+    let rootnode = arena_tree.get(rootnode_id);
+    let best_node = arena_tree.get(rootnode.children[0]);
+    let mut best_move = best_node.move_.expect("No move!");
+    let mut best_move_score = best_node.wins / best_node.visits;
+
+    for child_id in rootnode.children.iter() {
+        let child = arena_tree.get(*child_id);
+        println!("Move {}, Score {}/{} -> {}", child.move_.expect("No move!"), child.wins, child.visits, child.wins/child.visits);
+        let child_score = child.wins / child.visits;
+        if best_move_score < child_score {
+            best_move_score = child_score;
+            best_move = child.move_.expect("No move!");
         }
-    (0.0, 0.0)
+    }
+   
+    return best_move;
 }
 
 // Add stuct for return result
